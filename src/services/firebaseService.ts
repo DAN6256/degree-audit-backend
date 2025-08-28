@@ -74,10 +74,30 @@ export async function getUserByEmail(
   return snapshot.exists() ? snapshot.val() : null;
 }
 
-export async function createUserRecord(email: string, passwordHash: string, name?: string): Promise<void> {
+// export async function createUserRecord(email: string, passwordHash: string, name?: string): Promise<void> {
+//   initFirebase();
+//   const key = normalizeEmail(email);
+//   await admin.database().ref(`users/${key}`).set({ email, passwordHash, name });
+// }
+export async function createUserRecord(
+  email: string,
+  passwordHash: string,
+  name?: string
+): Promise<void> {
   initFirebase();
   const key = normalizeEmail(email);
-  await admin.database().ref(`users/${key}`).set({ email, passwordHash, name });
+
+  const payload: any = {
+    email,
+    passwordHash,
+  };
+  if (typeof name === 'string') {
+    // store the provided name (empty string is allowed). Avoid undefined entirely.
+    payload.name = name;
+  }
+
+  const safe = JSON.parse(JSON.stringify(payload));
+  await admin.database().ref(`users/${key}`).set(safe);
 }
 
 
